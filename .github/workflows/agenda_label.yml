@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  search_and_add:
+  search_and_remove:
     runs-on: ubuntu-latest
 
     steps:
