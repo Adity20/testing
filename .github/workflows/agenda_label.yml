@@ -1,4 +1,4 @@
-name: Search for issues and PR labeled 'agenda' and add them to the agenda
+name: Remove 'agenda' label from discussion
 
 on:
   workflow_dispatch:
@@ -31,9 +31,9 @@ jobs:
           const { graphql } = require('@octokit/graphql');
         
           const accessToken = process.env.MY_TOKEN;
-          const owner = 'Min2who';
-          const repo = 'CI-CD-test';
-          const issueNumber = 3;
+          const owner = 'Adity20';
+          const repo = 'testing';
+          const issueNumber = 4;
           const appendLabel = 'agenda';
         
           async function removeLabel() {
