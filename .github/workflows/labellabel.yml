@@ -6,21 +6,15 @@ jobs:
   remove_agenda_label:
     runs-on: ubuntu-latest
     steps:
-      - name: Setup Node.js environment
-        uses: actions/setup-node@v3
-        with:
-          node-version: '14'
-          
-      - name: Install dependencies
-        run: npm install @actions/github
-
       - name: Checkout code
         uses: actions/checkout@v2
 
       - name: Remove Agenda Label
-        uses: actions/github-script@v4
-        with:
-          github-token: ${{ secrets.TOKEN }}
+        run: |
+          npm install @octokit/rest
+          node -e "const Octokit = require('@octokit/rest'); const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN }); const owner = 'Adity20'; const repo = 'testing'; const issueNumber = 2; const labelToRemove = 'agenda'; octokit.issues.removeLabel({ owner, repo, issue_number: issueNumber, name: labelToRemove });"
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}
           script: |
             const { graphql } = require('@actions/github');
             const octokit = new github.GitHub(process.env.GITHUB_TOKEN);
