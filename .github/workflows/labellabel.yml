@@ -12,54 +12,28 @@ jobs:
       - name: Remove Agenda Label
         run: |
           npm install @octokit/rest
-          node -e "const { Octokit } = require('@octokit/rest'); const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN }); const owner = 'Adity20'; const repo = 'testing'; const issueNumber = 2; const labelToRemove = 'agenda'; octokit.issues.removeLabel({ owner, repo, issue_number: issueNumber, name: labelToRemove });"
+          node -e "const { Octokit } = require('@octokit/rest');
+          const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
+          const owner = 'Adity20';
+          const repo = 'testing';
+          const issueNumber = 3;
+          const labelToRemove = 'agenda';
+
+          console.log('Attempting to remove label from issue...');
+          
+          octokit.issues.removeLabel({
+            owner,
+            repo,
+            issue_number: issueNumber,
+            name: labelToRemove
+          })
+          .then(response => {
+            console.log('Label removed successfully:', response);
+          })
+          .catch(error => {
+            console.error('Error removing label:', error.message);
+            process.exit(1);
+          });
+          "
         env:
           GITHUB_TOKEN: ${{ secrets.TOKEN }}
-          script: |
-            const { graphql } = require('@actions/github');
-            const octokit = new github.GitHub(process.env.GITHUB_TOKEN);
-
-            const owner = 'Adity20';
-            const repo = 'testing';
-            const issueNumber = 3;
-            const labelToRemove = 'agenda';
-
-            // GraphQL query to get the issue labels
-            const query = `
-              query ($owner: String!, $repo: String!, $issueNumber: Int!) {
-                repository(owner: $owner, name: $repo) {
-                  issue(number: $issueNumber) {
-                    labels(first: 100) {
-                      nodes {
-                        name
-                      }
-                    }
-                  }
-                }
-              }
-            `;
-
-            // Variables for the GraphQL query
-            const variables = {
-              owner: owner,
-              repo: repo,
-              issueNumber: issueNumber
-            };
-
-            // Execute GraphQL query
-            const { repository } = await graphql(query, variables);
-
-            // Extract label names
-            const labels = repository.issue.labels.nodes.map(label => label.name);
-
-            // Check if the label to remove exists
-            if (labels.includes(labelToRemove)) {
-              // Remove the label
-              const newLabels = labels.filter(label => label !== labelToRemove);
-              await octokit.issues.setLabels({
-                owner: owner,
-                repo: repo,
-                issue_number: issueNumber,
-                labels: newLabels
-              });
-            }
