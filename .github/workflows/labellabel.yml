@@ -15,11 +15,19 @@ jobs:
           node-version: '14'
       
       - name: Install dependencies
-        run: npm install @octokit/graphql
+        run: npm install @actions/github
       
       - name: Remove Agenda Label
         run: |
-          const { request } = require('@octokit/request');
+          const { graphql } = require('@actions/github');
+          const fs = require('fs');
+
+          const owner = 'Adity20';
+          const repo = 'testing';
+          const issueNumber = 4;
+          const labelToRemove = 'agenda';
+          const token = process.env.GITHUB_TOKEN;
+
           const query = `
             mutation RemoveLabel($input: RemoveLabelsFromLabelableInput!) {
               removeLabelsFromLabelable(input: $input) {
@@ -27,11 +35,6 @@ jobs:
               }
             }
           `;
-          const owner = 'Adity20';
-          const repo = 'testing';
-          const issueNumber = 4;
-          const labelToRemove = 'agenda';
-          const token = process.env.GITHUB_TOKEN;
 
           const variables = {
             input: {
@@ -40,20 +43,13 @@ jobs:
             },
           };
 
-          request(`POST /repos/${owner}/${repo}/labels`, {
-            headers: {
-              authorization: `token ${token}`,
-              accept: 'application/vnd.github.v3+json',
-            },
-            variables,
-            query,
-          })
-          .then(response => {
-            console.log('Label removed successfully:', response.data);
-          })
-          .catch(error => {
-            console.error('Error removing label:', error.message);
-            process.exit(1);
-          });
+          graphql(query, variables, token)
+            .then(response => {
+              console.log('Label removed successfully:', response);
+            })
+            .catch(error => {
+              console.error('Error removing label:', error.message);
+              process.exit(1);
+            });
         env:
           GITHUB_TOKEN: ${{ secrets.TOKEN }}
