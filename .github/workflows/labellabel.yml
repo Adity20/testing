@@ -1,0 +1,87 @@
+name: Search for issues and PR labeled 'agenda' and add them to the agenda
+
+on:
+  workflow_dispatch:
+
+jobs:
+  search_and_add:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '18'
+
+    - name: Install dependencies
+      run: npm install @octokit/request@5
+
+    - name: Get 'agenda' label ID
+      id: get-label-id
+      uses: actions/github-script@v6
+      env: 
+        MY_TOKEN: ''
+        OWNER: 'Adity20'
+        REPO: 'testing'
+        LABEL_NAME: 'agenda'
+      with:
+        script: |
+          const { request } = require('@octokit/request');
+  
+          const accessToken = process.env.MY_TOKEN;
+          const owner = process.env.OWNER;
+          const repo = process.env.REPO;
+          const labelName = process.env.LABEL_NAME;
+  
+          try {
+            const { data: label } = await request({
+              method: 'GET',
+              url: `/repos/${owner}/${repo}/labels/${labelName}`,
+              headers: {
+                authorization: `token ${accessToken}`,
+                accept: 'application/vnd.github.v3+json',
+              },
+            });
+            console.log('Label ID:', label.id);
+            console.log(`::set-output name=label_id::${label.id}`);
+          } catch (error) {
+            console.error('Error fetching label ID:', error.message);
+            process.exit(1);
+          }
+
+    - name: Remove 'agenda' label from discussion
+      uses: actions/github-script@v6
+      env: 
+        MY_TOKEN: ${{ secrets.AUTH_TOKEN }}
+        OWNER: 'Adity20'
+        REPO: 'community'
+        ISSUE_NUMBER: 3
+      with: 
+        script: |
+          const { request } = require('@octokit/request');
+  
+          const accessToken = process.env.MY_TOKEN;
+          const owner = process.env.OWNER;
+          const repo = process.env.REPO;
+          const issueNumber = parseInt(process.env.ISSUE_NUMBER);
+          const labelID = parseInt(process.env.label_id);
+  
+          try {
+            await request({
+              method: 'DELETE',
+              url: `/repos/${owner}/${repo}/issues/${issueNumber}/labels`,
+              headers: {
+                authorization: `token ${accessToken}`,
+                accept: 'application/vnd.github.v3+json',
+              },
+              data: {
+                labels: [labelID]
+              }
+            });
+            console.log('Label removed successfully.');
+          } catch (error) {
+            console.error('Error removing label:', error.message);
+          }
