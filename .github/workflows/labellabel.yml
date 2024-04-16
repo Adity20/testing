@@ -20,7 +20,7 @@ jobs:
       - name: Remove Agenda Label
         run: |
           const octokit = require('@octokit/core').Octokit;
-          const request = require('@octokit/request').request;
+          const {request} = require('@octokit/request');
           const query = `
             mutation RemoveLabel($input: RemoveLabelsFromLabelableInput!) {
               removeLabelsFromLabelable(input: $input) {
