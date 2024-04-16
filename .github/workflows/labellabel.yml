@@ -16,7 +16,7 @@ jobs:
           const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
           const owner = 'Adity20';
           const repo = 'testing';
-          const issueNumber = 3;
+          const issueNumber = 1;
           const labelToRemove = 'agenda';
 
           console.log('Attempting to remove label from issue...');
