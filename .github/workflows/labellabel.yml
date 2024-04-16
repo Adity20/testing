@@ -1,7 +1,6 @@
 name: Remove Agenda Label
 on:
-  issues:
-    types: [unlabeled]
+  workflow_dispatch:
 
 jobs:
   remove_agenda_label:
