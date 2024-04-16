@@ -55,10 +55,10 @@ jobs:
     - name: Remove 'agenda' label from discussion
       uses: actions/github-script@v6
       env: 
-        MY_TOKEN: ${{ secrets.AUTH_TOKEN }}
+        MY_TOKEN: ${{ secrets.PAT_KEY1 }}
         OWNER: 'Adity20'
-        REPO: 'community'
-        ISSUE_NUMBER: 3
+        REPO: 'testing'
+        ISSUE_NUMBER: 2
       with: 
         script: |
           const { request } = require('@octokit/request');
@@ -72,13 +72,10 @@ jobs:
           try {
             await request({
               method: 'DELETE',
-              url: `/repos/${owner}/${repo}/issues/${issueNumber}/labels`,
+              url: `/repos/${owner}/${repo}/issues/${issueNumber}/labels/${labelID}`,
               headers: {
                 authorization: `token ${accessToken}`,
                 accept: 'application/vnd.github.v3+json',
-              },
-              data: {
-                labels: [labelID]
               }
             });
             console.log('Label removed successfully.');
