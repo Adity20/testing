@@ -15,12 +15,11 @@ jobs:
           node-version: '14'
       
       - name: Install dependencies
-        run: npm install @actions/github
+        run: npm install axios
       
       - name: Remove Agenda Label
         run: |
-          const { graphql } = require('@actions/github');
-          const fs = require('fs');
+          const axios = require('axios');
 
           const owner = 'Adity20';
           const repo = 'testing';
@@ -43,13 +42,20 @@ jobs:
             },
           };
 
-          graphql(query, variables, token)
-            .then(response => {
-              console.log('Label removed successfully:', response);
-            })
-            .catch(error => {
-              console.error('Error removing label:', error.message);
-              process.exit(1);
-            });
+          axios.post(`https://api.github.com/graphql`, {
+            query: query,
+            variables: variables
+          }, {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          })
+          .then(response => {
+            console.log('Label removed successfully:', response.data.data);
+          })
+          .catch(error => {
+            console.error('Error removing label:', error.message);
+            process.exit(1);
+          });
         env:
           GITHUB_TOKEN: ${{ secrets.TOKEN }}
