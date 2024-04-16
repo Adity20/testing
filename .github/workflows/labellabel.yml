@@ -8,32 +8,52 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-
+      
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v3
+        with:
+          node-version: '14'
+      
+      - name: Install dependencies
+        run: npm install @octokit/graphql
+      
       - name: Remove Agenda Label
         run: |
-          npm install @octokit/rest
-          node -e "const { Octokit } = require('@octokit/rest');
-          const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
+          const { request } = require('@octokit/request');
+          const query = `
+            mutation RemoveLabel($input: RemoveLabelsFromLabelableInput!) {
+              removeLabelsFromLabelable(input: $input) {
+                clientMutationId
+              }
+            }
+          `;
           const owner = 'Adity20';
           const repo = 'testing';
-          const issueNumber = 1;
+          const issueNumber = 4;
           const labelToRemove = 'agenda';
+          const token = process.env.GITHUB_TOKEN;
 
-          console.log('Attempting to remove label from issue...');
-          
-          octokit.issues.removeLabel({
-            owner,
-            repo,
-            issue_number: issueNumber,
-            name: labelToRemove
+          const variables = {
+            input: {
+              labelableId: issueNumber,
+              labelIds: [labelToRemove],
+            },
+          };
+
+          request(`POST /repos/${owner}/${repo}/labels`, {
+            headers: {
+              authorization: `token ${token}`,
+              accept: 'application/vnd.github.v3+json',
+            },
+            variables,
+            query,
           })
           .then(response => {
-            console.log('Label removed successfully:', response);
+            console.log('Label removed successfully:', response.data);
           })
           .catch(error => {
             console.error('Error removing label:', error.message);
             process.exit(1);
           });
-          "
         env:
           GITHUB_TOKEN: ${{ secrets.TOKEN }}
