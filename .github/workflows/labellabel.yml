@@ -1,11 +1,19 @@
 name: Remove Agenda Label
 on:
-  workflow_dispatch:
+  workflow_dispatch:  # Manual trigger
 
 jobs:
   remove_agenda_label:
     runs-on: ubuntu-latest
     steps:
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v3
+        with:
+          node-version: '14'
+          
+      - name: Install dependencies
+        run: npm install @actions/github
+
       - name: Checkout code
         uses: actions/checkout@v2
 
