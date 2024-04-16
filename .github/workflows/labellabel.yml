@@ -23,7 +23,7 @@ jobs:
       id: get-label-id
       uses: actions/github-script@v6
       env: 
-        MY_TOKEN: ''
+        MY_TOKEN: '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'
         OWNER: 'Adity20'
         REPO: 'testing'
         LABEL_NAME: 'agenda'
